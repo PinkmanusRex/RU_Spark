@@ -60,7 +60,7 @@ public class NetflixGraphGenerate {
 					}
 					return edges.iterator();
 				}, Encoders.tuple(Encoders.INT(), Encoders.INT()))
-				.groupByKey((MapFunction<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>) t -> t, Encoders.tuple(Encoders.INT(), Encoders.INT()))
+				.groupByKey((MapFunction<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>) t -> Tuple2.apply(t._1(), t._2()), Encoders.tuple(Encoders.INT(), Encoders.INT()))
 				.mapValues((MapFunction<Tuple2<Integer, Integer>, Integer>) t -> 1, Encoders.INT())
 				.reduceGroups((ReduceFunction<Integer>)(a, b) -> a + b)
 				.collectAsList();
