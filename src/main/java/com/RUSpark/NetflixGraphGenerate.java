@@ -33,7 +33,7 @@ public class NetflixGraphGenerate {
 				.appName("NetflixGraphGenerate")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath);
+		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
 	
 		List<Tuple2<Tuple2<Integer, Integer>, Integer>> res = ds
 				.groupByKey((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
