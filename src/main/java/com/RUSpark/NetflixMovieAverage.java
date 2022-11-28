@@ -9,6 +9,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import static org.apache.spark.sql.functions.avg;
 
 import scala.Tuple2;
 
@@ -31,20 +32,36 @@ public class NetflixMovieAverage {
 				.appName("NetflixMovieAverage")
 				.getOrCreate();
 		
-		spark.read().option("inferSchema", true).csv(InputPath).createOrReplaceGlobalTempView("NetflixTempTable");
+//		spark.read().option("inferSchema", true).csv(InputPath).createOrReplaceGlobalTempView("NetflixTempTable");
+//		
+//		List<Row> res = spark.sql("SELECT _c0 AS movieId, avg(_c2) AS avg FROM global_temp.NetflixTempTable GROUP BY _c0").collectAsList();
+//		
+//		res.sort((a, b) -> Integer.parseInt(a.getAs("movieId").toString()) - Integer.parseInt(b.getAs("movieId").toString()));
+//		
+//		System.out.println(
+//					res
+//						.stream()
+//						.map(r -> {
+//							int movieId = Integer.parseInt(r.getAs("movieId").toString());
+//							double avg = Double.parseDouble(r.getAs("avg").toString());
+//							return String.format("%d %.2f", movieId, avg);
+//						})
+//						.collect(Collectors.joining("\n"))
+//				);
 		
-		List<Row> res = spark.sql("SELECT _c0 AS movieId, avg(_c2) AS avg FROM global_temp.NetflixTempTable GROUP BY _c0").collectAsList();
-		
-		res.sort((a, b) -> Integer.parseInt(a.getAs("movieId").toString()) - Integer.parseInt(b.getAs("movieId").toString()));
-		
+		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
+			.groupBy("_c0")
+			.agg(avg("_c2").as("_c2"))
+			.map((MapFunction<Row, Tuple2<Integer, Double>>) r -> {
+				int movieId = Integer.parseInt(r.getAs("_c0").toString());
+				double avg = Double.parseDouble(r.getAs("avg").toString());
+				return Tuple2.apply(movieId, avg);
+			}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
+			.collectAsList();
+		res.sort((a, b) -> a._1() - b._1());
 		System.out.println(
-					res
-						.stream()
-						.map(r -> {
-							int movieId = Integer.parseInt(r.getAs("movieId").toString());
-							double avg = Double.parseDouble(r.getAs("avg").toString());
-							return String.format("%d %.2f", movieId, avg);
-						})
+					res.stream()
+						.map(e -> String.format("%d %.2f", e._1(), e._2()))
 						.collect(Collectors.joining("\n"))
 				);
 		
