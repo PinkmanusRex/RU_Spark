@@ -40,7 +40,7 @@ public class NetflixGraphGenerate {
 		
 //		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
 		
-		List<Row> res = spark.read().option("inferSchema", true).csv(InputPath)
+		/**List<Row> res =*/ spark.read().option("inferSchema", true).csv(InputPath)
 				.select(col("_c0").as("movieId"), col("_c2").as("rating"), col("_c1").as("customerId"))
 				.groupBy("movieId", "rating")
 				.agg(collect_list("customerId")).as("customerIds")
@@ -59,16 +59,17 @@ public class NetflixGraphGenerate {
 					}
 					return pairs.iterator();
 				}, Encoders.kryo(Row.class))
-				.groupBy("_c0", "_c1")
-				.count()
-				.collectAsList();
+				.show();
+//				.groupBy("_c0", "_c1")
+//				.count()
+//				.collectAsList();
 		
-		System.out.println(
-					res.stream()
-						.filter(r -> r.getInt(2) > 1)
-						.map(r -> String.format("(%d,%d) %d", r.getInt(0), r.getInstant(1), r.getInt(2)))
-						.collect(Collectors.joining("\n"))
-				);
+//		System.out.println(
+//					res.stream()
+//						.filter(r -> r.getInt(2) > 1)
+//						.map(r -> String.format("(%d,%d) %d", r.getInt(0), r.getInstant(1), r.getInt(2)))
+//						.collect(Collectors.joining("\n"))
+//				);
 	
 //		List<Tuple2<Tuple2<Integer, Integer>, Integer>> res = spark.read().option("inferSchema", true).csv(InputPath)
 //				.groupByKey((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
