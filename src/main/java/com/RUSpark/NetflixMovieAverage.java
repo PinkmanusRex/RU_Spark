@@ -49,18 +49,22 @@ public class NetflixMovieAverage {
 //						.collect(Collectors.joining("\n"))
 //				);
 		
-		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
+		List<Row> res = spark.read().option("inferSchema", true).csv(InputPath)
 			.groupBy("_c0")
 			.agg(avg("_c2").as("_c2"))
-			.map((MapFunction<Row, Tuple2<Integer, Double>>) r -> {
-				int movieId = Integer.parseInt(r.getAs("_c0").toString());
-				double avg = Double.parseDouble(r.getAs("avg").toString());
-				return Tuple2.apply(movieId, avg);
-			}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
 			.collectAsList();
-		res.sort((a, b) -> a._1() - b._1());
+		res.sort((a, b) -> {
+			int movieIdA = Integer.parseInt(a.getAs("_c0").toString());
+			int movieIdB = Integer.parseInt(b.getAs("_c0").toString());
+			return movieIdA - movieIdB;
+		});
 		System.out.println(
 					res.stream()
+						.map(r -> {
+							int movieId = Integer.parseInt(r.getAs("_c0").toString());
+							double avg = Double.parseDouble(r.getAs("_c2").toString());
+							return Tuple2.apply(movieId, avg);
+						})
 						.map(e -> String.format("%d %.2f", e._1(), e._2()))
 						.collect(Collectors.joining("\n"))
 				);
