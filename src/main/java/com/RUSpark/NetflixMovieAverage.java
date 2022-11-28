@@ -31,30 +31,32 @@ public class NetflixMovieAverage {
 				.appName("NetflixMovieAverage")
 				.getOrCreate();
 		
-//		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
+		spark.read().option("inferSchema", true).csv(InputPath).createOrReplaceGlobalTempView("NetflixTempTable");
 		
-		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
-				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
-				.mapValues((MapFunction<Row, Integer>) r -> r.getInt(2), Encoders.INT())
-				.mapGroups((MapGroupsFunction<Integer, Integer, Tuple2<Integer, Double>>) (k, vs) -> {
-					double sum = 0.0;
-					int noEntries = 0;
-					while (vs.hasNext()) {
-						double v = vs.next();
-						sum += v;
-						noEntries += 1;
-					}
-					return Tuple2.apply(k, sum/noEntries);
-				}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
-				.collectAsList();
+		spark.sql("SELECT _c0 AS movieId, avg(_c2) AS avg FROM global_temp.NetflixTempTable GROUP BY _c0").show();
 		
-		res.sort((a, b) -> a._1() - b._1());
-		System.out.println(
-					res
-						.stream()
-						.map(e -> String.format("%d %.2f", e._1(), e._2()))
-						.collect(Collectors.joining("\n"))
-				);
+//		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
+//				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
+//				.mapValues((MapFunction<Row, Integer>) r -> r.getInt(2), Encoders.INT())
+//				.mapGroups((MapGroupsFunction<Integer, Integer, Tuple2<Integer, Double>>) (k, vs) -> {
+//					double sum = 0.0;
+//					int noEntries = 0;
+//					while (vs.hasNext()) {
+//						double v = vs.next();
+//						sum += v;
+//						noEntries += 1;
+//					}
+//					return Tuple2.apply(k, sum/noEntries);
+//				}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
+//				.collectAsList();
+//		
+//		res.sort((a, b) -> a._1() - b._1());
+//		System.out.println(
+//					res
+//						.stream()
+//						.map(e -> String.format("%d %.2f", e._1(), e._2()))
+//						.collect(Collectors.joining("\n"))
+//				);
 	}
 
 }
