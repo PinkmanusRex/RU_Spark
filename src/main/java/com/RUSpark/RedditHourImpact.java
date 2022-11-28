@@ -33,7 +33,7 @@ public class RedditHourImpact {
 				.appName("RedditHourImpact")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().csv(InputPath);
+		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath);
 		
 		List<Tuple2<Integer, Integer>> res = ds
 				.map((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
