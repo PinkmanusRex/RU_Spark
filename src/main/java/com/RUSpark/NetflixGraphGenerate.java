@@ -65,7 +65,23 @@ public class NetflixGraphGenerate {
 				.groupBy("_c0", "_c1")
 				.count()
 				.collectAsList();
-		
+		res.sort((a, b) -> {
+			long weightA = a.getLong(2);
+			long weightB = b.getLong(2);
+			if (weightA == weightB) {
+				int v1A = a.getInt(0);
+				int v1B = b.getInt(0);
+				if (v1A == v1B) {
+					int v2A = a.getInt(1);
+					int v2B = b.getInt(1);
+					return v2A - v2B;
+				} else {
+					return v1A - v1B;
+				}
+			} else {
+				return (int) (weightA - weightB);
+			}
+		});
 		System.out.println(
 					res.stream()
 						.map(r -> String.format("(%d,%d) %d", r.getInt(0), r.getInt(1), r.getLong(2)))
