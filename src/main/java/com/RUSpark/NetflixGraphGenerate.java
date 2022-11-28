@@ -69,7 +69,7 @@ public class NetflixGraphGenerate {
 		System.out.println(
 					res.stream()
 						.filter(r -> r.getLong(2) > 1)
-						.map(r -> String.format("(%d,%d) %ld", r.getInt(0), r.getInt(1), r.getLong(2)))
+						.map(r -> String.format("(%d,%d) %d", r.getInt(0), r.getInt(1), r.getLong(2)))
 						.collect(Collectors.joining("\n"))
 				);
 	
