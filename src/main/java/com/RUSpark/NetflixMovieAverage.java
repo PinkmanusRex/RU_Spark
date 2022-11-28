@@ -31,7 +31,7 @@ public class NetflixMovieAverage {
 				.appName("NetflixMovieAverage")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).drop("_c1, _c3");
+		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).drop("_c1, _c3").repartition(20);
 		
 		List<Tuple2<Integer, Double>> res = ds
 				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
