@@ -33,9 +33,9 @@ public class NetflixGraphGenerate {
 				.appName("NetflixGraphGenerate")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
+//		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
 	
-		List<Tuple2<Tuple2<Integer, Integer>, Integer>> res = ds
+		List<Tuple2<Tuple2<Integer, Integer>, Integer>> res = spark.read().option("inferSchema", true).csv(InputPath)
 				.groupByKey((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
 					int movieId = r.getInt(0);
 					int rating = r.getInt(2);

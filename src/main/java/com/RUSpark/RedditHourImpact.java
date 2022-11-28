@@ -33,9 +33,9 @@ public class RedditHourImpact {
 				.appName("RedditHourImpact")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
+//		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
 		
-		List<Tuple2<Integer, Integer>> res = ds
+		List<Tuple2<Integer, Integer>> res = spark.read().option("inferSchema", true).csv(InputPath)
 				.map((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
 					long unixTime = r.getInt(1);
 					int hourOffset = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("America/New_York")).toLocalTime().getHour();

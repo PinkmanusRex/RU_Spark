@@ -31,9 +31,9 @@ public class NetflixMovieAverage {
 				.appName("NetflixMovieAverage")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
+//		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
 		
-		List<Tuple2<Integer, Double>> res = ds
+		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
 				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
 				.mapValues((MapFunction<Row, Integer>) r -> r.getInt(2), Encoders.INT())
 				.mapGroups((MapGroupsFunction<Integer, Integer, Tuple2<Integer, Double>>) (k, vs) -> {
@@ -48,6 +48,7 @@ public class NetflixMovieAverage {
 				}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
 				.collectAsList();
 		
+		res.sort((a, b) -> a._1() - b._1());
 		System.out.println(
 					res
 						.stream()

@@ -32,8 +32,9 @@ public class RedditPhotoImpact {
 				.appName("RedditPhotoImpact")
 				.getOrCreate();
 		
-		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
-		List<Tuple2<Integer, Integer>> res = ds
+//		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath).repartition(20);
+
+		List<Tuple2<Integer, Integer>> res = spark.read().option("inferSchema", true).csv(InputPath)
 				.map((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
 					int id = r.getInt(0);
 					int impactScore = r.getInt(4) + r.getInt(5) + r.getInt(6);
@@ -44,6 +45,7 @@ public class RedditPhotoImpact {
 				.reduceGroups((ReduceFunction<Integer>) (a, b) -> a + b)
 				.collectAsList();
 		
+		res.sort((a, b) -> a._1() - b._1());
 		System.out.println(
 					res
 						.stream()
