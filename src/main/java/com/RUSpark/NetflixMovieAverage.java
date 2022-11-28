@@ -33,7 +33,20 @@ public class NetflixMovieAverage {
 		
 		spark.read().option("inferSchema", true).csv(InputPath).createOrReplaceGlobalTempView("NetflixTempTable");
 		
-		spark.sql("SELECT _c0 AS movieId, avg(_c2) AS avg FROM global_temp.NetflixTempTable GROUP BY _c0").show();
+		List<Row> res = spark.sql("SELECT _c0 AS movieId, avg(_c2) AS avg FROM global_temp.NetflixTempTable GROUP BY _c0").collectAsList();
+		
+		res.sort((a, b) -> Integer.parseInt(a.getAs("movieId").toString()) - Integer.parseInt(b.getAs("movieId").toString()));
+		
+		System.out.println(
+					res
+						.stream()
+						.map(r -> {
+							int movieId = Integer.parseInt(r.getAs("movieId").toString());
+							double avg = Double.parseDouble(r.getAs("avg").toString());
+							return String.format("%d %.2f", movieId, avg);
+						})
+						.collect(Collectors.joining("\n"))
+				);
 		
 //		List<Tuple2<Integer, Double>> res = spark.read().option("inferSchema", true).csv(InputPath)
 //				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
