@@ -36,13 +36,13 @@ public class NetflixGraphGenerate {
 		Dataset<Row> ds = spark.read().option("inferSchema", true).csv(InputPath);
 	
 		List<Tuple2<Tuple2<Integer, Integer>, Integer>> res = ds
-				.groupByKey((MapFunction<Row, Tuple2<Integer, Double>>) r -> {
+				.groupByKey((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
 					int movieId = r.getInt(0);
-					double rating = r.getDouble(2);
+					int rating = r.getInt(2);
 					return Tuple2.apply(movieId, rating);
-				}, Encoders.tuple(Encoders.INT(), Encoders.DOUBLE()))
+				}, Encoders.tuple(Encoders.INT(), Encoders.INT()))
 				.mapValues((MapFunction<Row, Integer>) r -> r.getInt(1), Encoders.INT())
-				.flatMapGroups((FlatMapGroupsFunction<Tuple2<Integer, Double>, Integer, Tuple2<Integer, Integer>>) (k, vs) -> {
+				.flatMapGroups((FlatMapGroupsFunction<Tuple2<Integer, Integer>, Integer, Tuple2<Integer, Integer>>) (k, vs) -> {
 					List<Integer> customers = new ArrayList<>();
 					while (vs.hasNext())
 						customers.add(vs.next());

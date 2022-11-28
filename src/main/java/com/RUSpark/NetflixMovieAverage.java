@@ -35,8 +35,8 @@ public class NetflixMovieAverage {
 		
 		List<Tuple2<Integer, Double>> res = ds
 				.groupByKey((MapFunction<Row, Integer>) r -> r.getInt(0), Encoders.INT())
-				.mapValues((MapFunction<Row, Double>) r -> r.getDouble(2), Encoders.DOUBLE())
-				.mapGroups((MapGroupsFunction<Integer, Double, Tuple2<Integer, Double>>) (k, vs) -> {
+				.mapValues((MapFunction<Row, Integer>) r -> r.getInt(2), Encoders.INT())
+				.mapGroups((MapGroupsFunction<Integer, Integer, Tuple2<Integer, Double>>) (k, vs) -> {
 					double sum = 0.0;
 					int noEntries = 0;
 					while (vs.hasNext()) {

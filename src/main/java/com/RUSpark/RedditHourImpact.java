@@ -37,7 +37,7 @@ public class RedditHourImpact {
 		
 		List<Tuple2<Integer, Integer>> res = ds
 				.map((MapFunction<Row, Tuple2<Integer, Integer>>) r -> {
-					long unixTime = r.getLong(1);
+					long unixTime = r.getInt(1);
 					int hourOffset = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("America/New_York")).toLocalTime().getHour();
 					int impactScore = r.getInt(4) + r.getInt(5) + r.getInt(6);
 					return Tuple2.apply(hourOffset, impactScore);
