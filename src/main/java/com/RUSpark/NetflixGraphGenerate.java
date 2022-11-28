@@ -45,7 +45,7 @@ public class NetflixGraphGenerate {
 				.groupBy("movieId", "rating")
 				.agg(collect_list("customerId").as("customerIds"))
 				.flatMap((FlatMapFunction<Row, Row>) r -> {
-					List<Integer> customerIds = r.getAs("customerIds");
+					List<Integer> customerIds = r.getList(2);
 					List<Row> pairs = new ArrayList<>();
 					for (int i = 0; i < customerIds.size() - 1; i += 1) {
 						Integer customerA = customerIds.get(i);
