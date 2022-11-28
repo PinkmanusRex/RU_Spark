@@ -13,6 +13,9 @@ import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructType;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.collect_list;
@@ -58,7 +61,7 @@ public class NetflixGraphGenerate {
 						}
 					}
 					return pairs.iterator();
-				}, Encoders.kryo(Row.class))
+				}, RowEncoder.apply(new StructType().add("_c0", DataTypes.IntegerType).add("_c1", DataTypes.IntegerType)))
 				.show();
 //				.groupBy("_c0", "_c1")
 //				.count()
