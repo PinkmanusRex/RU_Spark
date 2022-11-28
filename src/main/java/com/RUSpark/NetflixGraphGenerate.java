@@ -43,7 +43,7 @@ public class NetflixGraphGenerate {
 		/**List<Row> res =*/ spark.read().option("inferSchema", true).csv(InputPath)
 				.select(col("_c0").as("movieId"), col("_c2").as("rating"), col("_c1").as("customerId"))
 				.groupBy("movieId", "rating")
-				.agg(collect_list("customerId")).as("customerIds")
+				.agg(collect_list("customerId").as("customerIds"))
 				.flatMap((FlatMapFunction<Row, Row>) r -> {
 					List<Integer> customerIds = r.getAs("customerIds");
 					List<Row> pairs = new ArrayList<>();
