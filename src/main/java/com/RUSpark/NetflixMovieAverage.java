@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import static org.apache.spark.sql.functions.avg;
+import static org.apache.spark.sql.functions.col;
 
 /* any necessary Java packages here */
 
@@ -29,14 +30,11 @@ public class NetflixMovieAverage {
 				.getOrCreate();
 		
 		List<Row> res = spark.read().option("inferSchema", true).csv(InputPath)
-			.groupBy("_c0")
-			.agg(avg("_c2").as("_c2"))
+			.groupBy(col("_c0").as("movieId"))
+			.agg(avg("_c2").as("rating"))
+			.orderBy(col("rating").desc(), col("movieId"))
 			.collectAsList();
-		res.sort((a, b) -> {
-			int movieIdA = a.getInt(0);
-			int movieIdB = b.getInt(0);
-			return movieIdA - movieIdB;
-		});
+
 		NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
 		formatter.setMinimumFractionDigits(0);
 		formatter.setMaximumFractionDigits(2);

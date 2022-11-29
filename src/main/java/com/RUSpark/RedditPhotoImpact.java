@@ -33,12 +33,9 @@ public class RedditPhotoImpact {
 				.select(col("_c0").as("postId"), col("_c4").plus(col("_c5")).plus(col("_c6")).as("impactScore"))
 				.groupBy("postId")
 				.agg(sum("impactScore").as("impactScore"))
+				.orderBy(col("impactScore").desc(), col("postId"))
 				.collectAsList();
-		res.sort((a, b) -> {
-			int postIdA = Integer.parseInt(a.getAs("postId").toString());
-			int postIdB = Integer.parseInt(b.getAs("postId").toString());
-			return postIdA - postIdB;
-		});
+
 		System.out.println(
 					res.stream()
 						.map(r -> String.format("%s %s", r.getAs("postId").toString(), r.getAs("impactScore").toString()))

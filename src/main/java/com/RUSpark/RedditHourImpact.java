@@ -44,12 +44,9 @@ public class RedditHourImpact {
 				.select(col("hourOffset"), col("_c4").plus(col("_c5")).plus(col("_c6")).as("impactScore"))
 				.groupBy("hourOffset")
 				.agg(sum("impactScore").as("impactScore"))
+				.orderBy(col("hourOffset").asc())
 				.collectAsList();
-		res.sort((a, b) -> {
-			int hourA = Integer.parseInt(a.getAs("hourOffset").toString());
-			int hourB = Integer.parseInt(b.getAs("hourOffset").toString());
-			return hourA - hourB;
-		});
+
 		System.out.println(
 					res.stream()
 						.map(r -> String.format("%s %s", r.getAs("hourOffset").toString(), r.getAs("impactScore").toString()))
