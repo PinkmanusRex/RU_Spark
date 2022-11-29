@@ -1,6 +1,8 @@
 package com.RUSpark;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.apache.spark.sql.Row;
@@ -35,9 +37,12 @@ public class NetflixMovieAverage {
 			int movieIdB = b.getInt(0);
 			return movieIdA - movieIdB;
 		});
+		NumberFormat formatter = NumberFormat.getNumberInstance(Locale.US);
+		formatter.setMinimumFractionDigits(0);
+		formatter.setMaximumFractionDigits(2);
 		System.out.println(
 					res.stream()
-						.map(r -> String.format("%d %.2f", r.getInt(0), r.getDouble(1)))
+						.map(r -> String.format("%d %s", r.getInt(0), formatter.format(r.getDouble(1))))
 						.collect(Collectors.joining("\n"))
 				);
 		
